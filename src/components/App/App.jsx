@@ -1,43 +1,62 @@
-import ContactForm from "../ContactForm/ContactForm";
-import ContactList from "../ContactList/ContactList";
-import SearchBox from "../SearchBox/SearchBox";
-import Loader from "../Loader/Loader";
-import ErrorMessage from "../ErrorMessage/ErrorMessage";
-import css from "./App.module.css";
-import { useEffect, useRef } from "react";
+import { lazy, Suspense, useEffect } from "react";
+import { Route, Routes } from "react-router-dom";
+import Layout from "../Layout/Layout";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchContacts } from "../../redux/contactsOps";
-import {
-  selectContacts,
-  selectError,
-  selectLoading,
-} from "../../redux/contactsSlice";
+import { refreshUser } from "../../redux/auth/operations";
+import { selectIsRefreshing } from "../../redux/auth/selectors";
+import RestrictedRoute from "../RestrictedRoute";
+import PrivateRoute from "../PrivateRoute";
 
-function App() {
+const HomePage = lazy(() => import("../../pages/HomePage/HomePage"));
+const LoginPage = lazy(() => import("../../pages/LoginPage/LoginPage"));
+const RegisterPage = lazy(() =>
+  import("../../pages/RegisterPage/RegisterPage")
+);
+const PhonebookPage = lazy(() =>
+  import("../../pages/PhonebookPage/PhonebookPage")
+);
+
+export default function App() {
   const dispatch = useDispatch();
-  const contacts = useSelector(selectContacts);
-
-  const loading = useSelector(selectLoading);
-  const error = useSelector(selectError);
+  const isRefreshing = useSelector(selectIsRefreshing);
 
   useEffect(() => {
-    dispatch(fetchContacts());
+    dispatch(refreshUser());
   }, [dispatch]);
-  return (
-    <>
-      <div>
-        <h1 className={css.title}>Phonebook</h1>
-        <ContactForm />
-        <SearchBox />
-        {loading && !error && <Loader />}
-        {error && <ErrorMessage message={error} />}
-        {contacts.length > 0 && <ContactList />}
-        {contacts.length === 0 && !loading && (
-          <p className={css.noContacts}>No contacts!</p>
-        )}
-      </div>
-    </>
+
+  return isRefreshing ? (
+    <strong>Getting user data please wait...</strong>
+  ) : (
+    <Layout>
+      <Suspense fallback={null}>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route
+            path="/register"
+            element={
+              <RestrictedRoute
+                component={<RegisterPage />}
+                redirectTo="/phonebook"
+              />
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              <RestrictedRoute
+                component={<LoginPage />}
+                redirectTo="/phonebook"
+              />
+            }
+          />
+          <Route
+            path="/phonebook"
+            element={
+              <PrivateRoute component={<PhonebookPage />} redirectTo="/login" />
+            }
+          />
+        </Routes>
+      </Suspense>
+    </Layout>
   );
 }
-
-export default App;

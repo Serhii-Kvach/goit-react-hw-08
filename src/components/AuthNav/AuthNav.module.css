@@ -1,0 +1,13 @@
+.div {
+  display: flex;
+  gap: 80px;
+}
+
+.link {
+  font-size: 20px;
+}
+
+.link.active {
+  border: 2px solid rgb(255, 254, 251);
+  border-radius: 8px;
+}

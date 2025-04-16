@@ -1,0 +1,11 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  max-width: 380px;
+  row-gap: 16px;
+  align-items: end;
+}
+
+.button {
+  width: 120px;
+}
