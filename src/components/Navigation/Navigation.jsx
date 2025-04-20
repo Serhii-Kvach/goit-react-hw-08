@@ -16,7 +16,7 @@ export default function Navigation() {
         Home
       </NavLink>
       {isLoggedIn && (
-        <NavLink className={biuldLinkClass} to="/phonebook">
+        <NavLink className={biuldLinkClass} to="/contacts">
           Phonebook
         </NavLink>
       )}
